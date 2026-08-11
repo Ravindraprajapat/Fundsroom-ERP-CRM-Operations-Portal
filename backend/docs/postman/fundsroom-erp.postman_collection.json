@@ -1,0 +1,22 @@
+{
+  "info": {
+    "name": "Fundsroom ERP-CRM",
+    "description": "API collection for Fundsroom ERP-CRM. Full collection will be completed in Phase 11.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/health"
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000/api"
+    }
+  ]
+}
