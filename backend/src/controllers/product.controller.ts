@@ -20,11 +20,14 @@ export async function list(req: Request, res: Response, next: NextFunction): Pro
     const dataWithUrls = await Promise.all(
       result.data.map(async (p: any) => {
         if (p.imageUrl) {
+          if (p.imageUrl.startsWith("http") || p.imageUrl.startsWith("data:")) {
+            return p;
+          }
           try {
             const url = await getFromS3(p.imageUrl, 3600);
             return { ...p, imageUrl: url };
           } catch (e) {
-            // If presign fails, return original record (frontend can handle missing image)
+            // If presign fails, return original record
             return p;
           }
         }
@@ -41,9 +44,12 @@ export async function getById(req: Request, res: Response, next: NextFunction): 
     const id = req.params["id"] as string;
     const product = await productService.getProduct(id);
     if (product && product.imageUrl) {
+      if (product.imageUrl.startsWith("http") || product.imageUrl.startsWith("data:")) {
+        sendSuccess(res, product);
+        return;
+      }
       try {
         const url = await getFromS3(product.imageUrl, 3600);
-        // send product with imageUrl replaced by presigned URL for frontend
         sendSuccess(res, { ...product, imageUrl: url });
         return;
       } catch (e) {
@@ -91,21 +97,9 @@ export async function remove(req: Request, res: Response, next: NextFunction): P
 export async function uploadProductImage(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const id = req.params.id as string;
-    if (!id) {
-      throw createError("Product ID is required", 400);
+    if (!id || id === "undefined" || id === "null") {
+      throw createError("Valid Product ID is required", 400);
     }
-
-    console.log("uploadProductImage called", {
-      productId: id,
-      filePresent: Boolean(req.file),
-      fileMetadata: req.file
-        ? {
-            originalname: req.file.originalname,
-            mimetype: req.file.mimetype,
-            size: req.file.size,
-          }
-        : null,
-    });
 
     if (!req.file) {
       throw createError("No image file provided", 400);
@@ -118,11 +112,6 @@ export async function uploadProductImage(req: Request, res: Response, next: Next
     }
 
     const file = req.file as Express.Multer.File;
-    console.log('req.file:', req.file);
-    console.log('buffer exists:', !!file.buffer);
-    console.log('buffer size:', file.buffer?.length);
-    console.log('mimetype:', file.mimetype);
-
     let fileExt = path.extname(file.originalname);
     if (!fileExt) {
       const extensionFromMime = file.mimetype.split('/')[1] || 'bin';
@@ -130,37 +119,31 @@ export async function uploadProductImage(req: Request, res: Response, next: Next
     }
 
     const filename = `products/${product.sku}-${Date.now()}${fileExt}`;
-    console.log("Uploading to S3:", {
-      key: filename,
-      size: file.buffer?.length,
-      contentType: file.mimetype,
-    });
+    let imageUrlValue = filename;
+    let presignedUrl: string | undefined;
 
     try {
       await uploadToS3(filename, file.buffer, file.mimetype);
       console.log("S3 upload SUCCESS:", filename);
+      try {
+        presignedUrl = await getFromS3(filename, 3600);
+      } catch (presignErr) {
+        console.warn("S3 presign failed, using filename key", presignErr);
+      }
     } catch (uploadErr) {
-      console.error('S3 upload ERROR for', filename, uploadErr);
-      throw uploadErr;
+      console.warn("S3 upload failed, falling back to Data URL storage", uploadErr);
+      const base64Data = file.buffer.toString("base64");
+      imageUrlValue = `data:${file.mimetype};base64,${base64Data}`;
+      presignedUrl = imageUrlValue;
     }
 
     const updatedProduct = await prisma.product.update({
       where: { id },
-      data: { imageUrl: filename },
+      data: { imageUrl: imageUrlValue },
     });
 
-    // Generate presigned URL for immediate frontend use (keep DB value as the key)
-    try {
-      const presignedUrl = await getFromS3(filename, 3600);
-      console.log(presignedUrl)
-      const productForClient = { ...updatedProduct, imageUrl: presignedUrl };
-      sendSuccess(res, { imageUrl: filename, presignedUrl, product: productForClient });
-      return;
-    } catch (e) {
-      // If presign fails, still return the key and product
-      sendSuccess(res, { imageUrl: filename, product: updatedProduct });
-      return;
-    }
+    const productForClient = { ...updatedProduct, imageUrl: presignedUrl || imageUrlValue };
+    sendSuccess(res, { imageUrl: imageUrlValue, presignedUrl: presignedUrl || imageUrlValue, product: productForClient });
   } catch (err) {
     next(err);
   }
