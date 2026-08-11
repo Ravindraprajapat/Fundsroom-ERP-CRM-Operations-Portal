@@ -179,7 +179,7 @@ export function StockMovementModal({
                   <option value="">Select a product</option>
                   {products.map((product) => (
                     <option key={product.id} value={product.id}>
-                      {product.productName} ({product.sku}) - ?{product.unitPrice}
+                      {product.productName} ({product.sku}) - ₹{product.unitPrice}
                     </option>
                   ))}
                 </select>
@@ -199,7 +199,7 @@ export function StockMovementModal({
                   </div>
                   <div>
                     <p className="text-sm text-gray-600">Unit Price</p>
-                    <p className="text-lg font-bold text-gray-900">?{selectedProduct.unitPrice}</p>
+                    <p className="text-lg font-bold text-gray-900">₹{selectedProduct.unitPrice}</p>
                   </div>
                   <div>
                     <p className="text-sm text-gray-600">Location</p>

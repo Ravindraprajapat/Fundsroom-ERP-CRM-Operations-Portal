@@ -14,12 +14,12 @@ export const stockService = {
   },
 
   async stockIn(productId: string, quantity: number, reason: string): Promise<any> {
-    const response = await api.post('/stock/in', { productId, quantity, reason });
+    const response = await api.post('/stock/in', { productId, quantity, reason, type: 'IN' });
     return response.data;
   },
 
   async stockOut(productId: string, quantity: number, reason: string): Promise<any> {
-    const response = await api.post('/stock/out', { productId, quantity, reason });
+    const response = await api.post('/stock/out', { productId, quantity, reason, type: 'OUT' });
     return response.data;
   },
 };
