@@ -23,7 +23,14 @@ const allowedOrigins = [
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin) || /^http:\/\/(localhost|127\.0\.0\.1):\d+$/.test(origin)) {
+      if (
+        !origin ||
+        allowedOrigins.includes(origin) ||
+        /^http:\/\/(localhost|127\.0\.0\.1):\d+$/.test(origin) ||
+        /\.onrender\.com$/.test(origin) ||
+        /\.vercel\.app$/.test(origin) ||
+        /\.netlify\.app$/.test(origin)
+      ) {
         return callback(null, true);
       }
       return callback(new Error("CORS policy does not allow this origin."));
@@ -32,6 +39,16 @@ app.use(
   })
 );
 app.use(express.json());
+
+app.get("/", (_req: Request, res: Response) => {
+  res.json({
+    success: true,
+    name: "Fundsroom ERP-CRM Operations Portal API",
+    version: "1.0.0",
+    status: "online",
+    health: "/api/health",
+  });
+});
 
 app.get("/api/health", (_req: Request, res: Response) => {
   res.json({ success: true, message: "API is running" });
