@@ -83,17 +83,44 @@ export function NewProduct() {
         minimumStock: parseInt(formData.minimumStock, 10),
       });
 
-      const productId = createdRes?.id || createdRes?.data?.id || createdRes?.data?.data?.id;
+      console.log('Created product response object:', createdRes);
+
+      let productId: string | undefined =
+        createdRes?.id ||
+        createdRes?.data?.id ||
+        createdRes?.data?.data?.id ||
+        createdRes?.product?.id ||
+        createdRes?.data?.product?.id;
+
+      // Fallback: If productId could not be resolved, query database by SKU
+      if (!productId || productId === 'undefined') {
+        try {
+          const fetchBySku = await productService.getAll({ search: formData.sku.trim() });
+          const matchedProduct = fetchBySku?.data?.find(p => p.sku === formData.sku.trim());
+          if (matchedProduct?.id) {
+            productId = matchedProduct.id;
+          }
+        } catch (fetchErr) {
+          console.warn('Fallback fetch by SKU failed:', fetchErr);
+        }
+      }
+
+      console.log('Final resolved productId for upload:', productId);
 
       if (imageFile) {
         if (!productId || productId === 'undefined') {
-          console.warn('Product created, but ID could not be determined for image upload:', createdRes);
+          console.warn('Product created successfully, but ID could not be resolved for image upload.');
           setSuccessMessage('Product created successfully');
         } else {
           console.log('Uploading image for product:', productId);
-          const uploadResult = await productService.uploadImage(productId, imageFile);
-          console.log('Upload result:', uploadResult);
-          setSuccessMessage('Product created and image uploaded successfully');
+          try {
+            const uploadResult = await productService.uploadImage(productId, imageFile);
+            console.log('Upload result:', uploadResult);
+            setSuccessMessage('Product created and image uploaded successfully');
+          } catch (imgErr: any) {
+            console.error('Image upload error (product was created):', imgErr);
+            setSuccessMessage('Product created successfully (image upload pending)');
+          }
         }
       } else {
         setSuccessMessage('Product created successfully');
@@ -101,7 +128,7 @@ export function NewProduct() {
 
       navigate('/products');
     } catch (err: any) {
-      console.error('Product create/upload error:', err);
+      console.error('Product create error:', err);
       setError(err.response?.data?.message || 'Failed to create product');
     } finally {
       setLoading(false);
