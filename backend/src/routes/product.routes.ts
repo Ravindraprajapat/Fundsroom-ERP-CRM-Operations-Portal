@@ -22,7 +22,7 @@ const router = Router();
 router.use(authenticate);
 
 router.get("/", authorizeRoles("ADMIN", "WAREHOUSE", "SALES", "ACCOUNTS"), list);
-router.post("/", authorizeRoles("ADMIN", "WAREHOUSE"), validate(validateCreateProduct), create);
+router.post("/", authorizeRoles("ADMIN", "WAREHOUSE"), upload.single('image'), validate(validateCreateProduct), create);
 router.get('/images', getProductImage);
 router.get("/:id", authorizeRoles("ADMIN", "WAREHOUSE", "SALES", "ACCOUNTS"), getById);
 router.put("/:id", authorizeRoles("ADMIN", "WAREHOUSE"), validate(validateUpdateProduct), update);

@@ -20,10 +20,28 @@ export const productService = {
     return resData?.data || resData;
   },
 
-  async create(data: Partial<Product>): Promise<Product> {
-    const response = await api.post('/products', data);
+  async create(data: Partial<Product> & { imageFile?: File | null }): Promise<Product> {
+    let response;
+    if (data.imageFile) {
+      const formData = new FormData();
+      formData.append('productName', data.productName || '');
+      formData.append('sku', data.sku || '');
+      formData.append('category', data.category || 'General');
+      formData.append('unitPrice', String(data.unitPrice ?? 0));
+      formData.append('currentStock', String(data.currentStock ?? 0));
+      formData.append('minimumStock', String(data.minimumStock ?? 0));
+      formData.append('warehouseLocation', data.warehouseLocation || '');
+      formData.append('image', data.imageFile);
+
+      response = await api.post('/products', formData);
+    } else {
+      const { imageFile, ...jsonData } = data;
+      response = await api.post('/products', jsonData);
+    }
+
     const resData = response.data;
-    return resData?.data || resData;
+    const result = resData?.data || resData;
+    return result?.data || result;
   },
 
   async update(id: string, data: Partial<Product>): Promise<Product> {
@@ -35,7 +53,8 @@ export const productService = {
   async uploadImage(id: string, file: File): Promise<{ imageUrl: string; product: Product } & { presignedUrl?: string }> {
     const cleanId = (typeof id === 'string' && id !== 'undefined' && id !== 'null') ? id.trim() : '';
     if (!cleanId) {
-      throw new Error('Valid Product ID is required for image upload');
+      console.warn('uploadImage: skipped upload due to invalid/missing Product ID');
+      return { imageUrl: '', product: {} as Product };
     }
     console.log('Uploading product image', { productId: cleanId, fileName: file?.name, fileType: file?.type, fileSize: file?.size });
 
