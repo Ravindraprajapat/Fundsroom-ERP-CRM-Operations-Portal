@@ -2,6 +2,10 @@
 
 A modern, full-stack Enterprise Resource Planning (ERP) and Customer Relationship Management (CRM) portal built specifically for wholesale and distribution companies. This portal streamlines business-critical workflows including customer lead management, product catalogs, warehouse stock tracking, atomic sales challan processing, payment status tracking, PDF document generation, and cloud-based product image storage via AWS S3.
 
+🌐 **Live Deployment Links:**
+- **Live Frontend Web Application (Vercel)**: [https://fundsroom-erp-crm-operations-portal.vercel.app/](https://fundsroom-erp-crm-operations-portal.vercel.app/)
+- **Live Backend API Service (Render)**: [https://fundsroom-erp-crm-operations-portal-1.onrender.com](https://fundsroom-erp-crm-operations-portal-1.onrender.com)
+
 ---
 
 ## Table of Contents
