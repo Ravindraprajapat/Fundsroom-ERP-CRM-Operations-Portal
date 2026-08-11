@@ -16,24 +16,28 @@ export const productService = {
 
   async getById(id: string): Promise<Product> {
     const response = await api.get(`/products/${id}`);
-    return response.data?.data || response.data;
+    const resData = response.data;
+    return resData?.data || resData;
   },
 
   async create(data: Partial<Product>): Promise<Product> {
     const response = await api.post('/products', data);
-    return response.data?.data || response.data;
+    const resData = response.data;
+    return resData?.data || resData;
   },
 
   async update(id: string, data: Partial<Product>): Promise<Product> {
     const response = await api.put(`/products/${id}`, data);
-    return response.data?.data || response.data;
+    const resData = response.data;
+    return resData?.data || resData;
   },
 
   async uploadImage(id: string, file: File): Promise<{ imageUrl: string; product: Product } & { presignedUrl?: string }> {
-    if (!id || id === 'undefined') {
-      throw new Error('Invalid Product ID provided for image upload');
+    const cleanId = (typeof id === 'string' && id !== 'undefined' && id !== 'null') ? id.trim() : '';
+    if (!cleanId) {
+      throw new Error('Valid Product ID is required for image upload');
     }
-    console.log('Uploading product image', { productId: id, fileName: file?.name, fileType: file?.type, fileSize: file?.size });
+    console.log('Uploading product image', { productId: cleanId, fileName: file?.name, fileType: file?.type, fileSize: file?.size });
 
     if (!file) {
       throw new Error('No file provided to uploadImage');
