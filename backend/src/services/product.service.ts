@@ -34,7 +34,7 @@ export async function listProducts(query: ProductQuery) {
 
   let resultData = data;
   if (lowStock) {
-    resultData = data.filter(p => p.currentStock <= p.minimumStock);
+    resultData = data.filter((p: any) => p.currentStock <= p.minimumStock);
   }
 
   return { data: resultData, total, page, limit, totalPages: Math.ceil(total / limit) };

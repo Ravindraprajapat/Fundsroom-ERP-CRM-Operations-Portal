@@ -243,7 +243,7 @@ export async function generateInvoicePDF(challanId: string): Promise<Buffer> {
       renderTableHeader();
       doc.font("Helvetica").fontSize(8.5).fillColor(darkText);
 
-      challan.items.forEach((item, index) => {
+      challan.items.forEach((item: any, index: number) => {
         const productName = formatText(item.productName || item.product?.productName);
         const qtyText = formatText(item.quantity);
         const unitPriceText = formatCurrency(item.unitPrice);

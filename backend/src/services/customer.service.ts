@@ -107,7 +107,7 @@ export async function deleteCustomer(id: string) {
   if (!customer) throw createError('Customer not found', 404);
 
   // Delete related challans (and their items via cascade) before deleting customer
-  const deleted = await prisma.$transaction(async (tx) => {
+  const deleted = await prisma.$transaction(async (tx: any) => {
     await tx.challan.deleteMany({ where: { customerId: id } });
     const d = await tx.customer.delete({ where: { id } });
     return d;

@@ -85,7 +85,7 @@ export async function generateChallanPDF(challanId: string): Promise<Buffer> {
 
     // Draw items
     doc.fontSize(11).font("Helvetica");
-    challan.items.forEach((item, index) => {
+    challan.items.forEach((item: any, index: number) => {
       xPos = tableLeft + 5;
       
       doc.text(`${index + 1}`, xPos, doc.y, { width: colWidths[0]! - 10, align: "center" });

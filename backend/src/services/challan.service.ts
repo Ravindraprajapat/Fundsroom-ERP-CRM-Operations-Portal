@@ -62,17 +62,17 @@ export async function createChallan(customerId: string, items: { productId: stri
   if (!customer) throw createError("Customer not found", 404);
 
   const products = await prisma.product.findMany({
-    where: { id: { in: items.map(i => i.productId) } },
+    where: { id: { in: items.map((i: any) => i.productId) } },
   });
 
   if (products.length !== items.length) {
     throw createError("One or more products not found", 400);
   }
 
-  const productMap = new Map(products.map(p => [p.id, p]));
+  const productMap = new Map<string, any>(products.map((p: any) => [p.id, p]));
   let totalQuantity = 0;
 
-  const challanItems = items.map(item => {
+  const challanItems = items.map((item: any) => {
     const product = productMap.get(item.productId);
     if (!product) throw createError("Product not found", 400);
     totalQuantity += item.quantity;
@@ -111,10 +111,10 @@ export async function confirmChallan(id: string) {
   if (challan.status !== "DRAFT") throw createError("Only draft challans can be confirmed", 400);
 
   const products = await prisma.product.findMany({
-    where: { id: { in: challan.items.map(i => i.productId) } },
+    where: { id: { in: challan.items.map((i: any) => i.productId) } },
   });
 
-  const productMap = new Map(products.map(p => [p.id, p]));
+  const productMap = new Map<string, any>(products.map((p: any) => [p.id, p]));
 
   for (const item of challan.items) {
     const product = productMap.get(item.productId);
@@ -124,7 +124,7 @@ export async function confirmChallan(id: string) {
     }
   }
 
-  return prisma.$transaction(async (tx) => {
+  return prisma.$transaction(async (tx: any) => {
     for (const item of challan.items) {
       const product = productMap.get(item.productId);
       if (!product) continue;
@@ -195,17 +195,17 @@ export async function updateDraftChallan(
   if (!customer) throw createError("Customer not found", 404);
 
   const products = await prisma.product.findMany({
-    where: { id: { in: items.map(i => i.productId) } },
+    where: { id: { in: items.map((i: any) => i.productId) } },
   });
 
   if (products.length !== items.length) {
     throw createError("One or more products not found", 400);
   }
 
-  const productMap = new Map(products.map(p => [p.id, p]));
+  const productMap = new Map<string, any>(products.map((p: any) => [p.id, p]));
   let totalQuantity = 0;
 
-  const challanItems = items.map(item => {
+  const challanItems = items.map((item: any) => {
     const product = productMap.get(item.productId);
     if (!product) throw createError("Product not found", 400);
     totalQuantity += item.quantity;
