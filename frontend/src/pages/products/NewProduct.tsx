@@ -76,16 +76,21 @@ export function NewProduct() {
     setLoading(true);
 
     try {
-      const product = await productService.create({
+      const createdProduct = await productService.create({
         ...formData,
         unitPrice: parseFloat(formData.unitPrice),
         currentStock: parseInt(formData.currentStock, 10),
         minimumStock: parseInt(formData.minimumStock, 10),
       });
 
+      const productId = createdProduct?.id || (createdProduct as any)?.data?.id;
+
       if (imageFile) {
-        console.log('Uploading image for product:', product.id);
-        const uploadResult = await productService.uploadImage(product.id, imageFile);
+        if (!productId) {
+          throw new Error('Product created, but failed to retrieve product ID for image upload.');
+        }
+        console.log('Uploading image for product:', productId);
+        const uploadResult = await productService.uploadImage(productId, imageFile);
         console.log('Upload result:', uploadResult);
         setSuccessMessage('Product created and image uploaded successfully');
       } else {

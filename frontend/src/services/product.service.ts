@@ -16,20 +16,23 @@ export const productService = {
 
   async getById(id: string): Promise<Product> {
     const response = await api.get(`/products/${id}`);
-    return response.data;
+    return response.data?.data || response.data;
   },
 
   async create(data: Partial<Product>): Promise<Product> {
     const response = await api.post('/products', data);
-    return response.data;
+    return response.data?.data || response.data;
   },
 
   async update(id: string, data: Partial<Product>): Promise<Product> {
     const response = await api.put(`/products/${id}`, data);
-    return response.data;
+    return response.data?.data || response.data;
   },
 
   async uploadImage(id: string, file: File): Promise<{ imageUrl: string; product: Product } & { presignedUrl?: string }> {
+    if (!id || id === 'undefined') {
+      throw new Error('Invalid Product ID provided for image upload');
+    }
     console.log('Uploading product image', { productId: id, fileName: file?.name, fileType: file?.type, fileSize: file?.size });
 
     if (!file) {
