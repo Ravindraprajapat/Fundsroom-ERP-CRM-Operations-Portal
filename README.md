@@ -946,6 +946,22 @@ The database comes pre-seeded with four role-specific demonstration accounts:
 
 ---
 
-## 35. License
+## 35. Postman API Collection & Testing
+
+An official Postman Collection (v2.1.0) and Production Environment are available in the repository at:
+- **Collection File**: [`docs/postman/Fundsroom-ERP-CRM-API.postman_collection.json`](file:///c:/Users/ASUS/Downloads/Fundsroom-ERP-CRM-Operations-Portal-main/Fundsroom-ERP-CRM-Operations-Portal-main/docs/postman/Fundsroom-ERP-CRM-API.postman_collection.json)
+- **Environment File**: [`docs/postman/Fundsroom-ERP-CRM-Production.postman_environment.json`](file:///c:/Users/ASUS/Downloads/Fundsroom-ERP-CRM-Operations-Portal-main/Fundsroom-ERP-CRM-Operations-Portal-main/docs/postman/Fundsroom-ERP-CRM-Production.postman_environment.json)
+
+### Instructions for Importing & Running
+
+1. **Import Files**: Open Postman -> Click **Import** -> Select both `Fundsroom-ERP-CRM-API.postman_collection.json` and `Fundsroom-ERP-CRM-Production.postman_environment.json`.
+2. **Select Environment**: Choose **Fundsroom ERP CRM Production** from the environment dropdown in the top right.
+3. **Verify Base URL**: Ensure `baseUrl` is set to `https://fundsroom-erp-crm-operations-portal-1.onrender.com`.
+4. **Authenticate**: Run any request under `01 Authentication` (e.g. `Login - ADMIN Role`). The Postman test script automatically captures and stores the JWT token into `{{token}}`.
+5. **Execute Endpoints**: Run Customer, Product, S3 Image Upload, Stock IN/OUT, Sales Challan, or PDF endpoints. Dynamic variables (`{{customerId}}`, `{{productId}}`, `{{challanId}}`) are populated automatically upon entity creation.
+
+---
+
+## 36. License
 
 This project is licensed under the **ISC License**.

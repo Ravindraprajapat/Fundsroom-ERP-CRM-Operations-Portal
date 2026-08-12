@@ -1,0 +1,1950 @@
+{
+	"info": {
+		"_postman_id": "b3e90a21-7294-4f40-a15d-8b8321094001",
+		"name": "Fundsroom ERP CRM API",
+		"description": "# Fundsroom ERP CRM API\n\n## Overview\nREST API collection for the **Fundsroom ERP-CRM Operations Portal**, an enterprise wholesale and distribution management platform. This collection covers Authentication, Customer CRM, Product Catalog, AWS S3 Image Uploads, Stock & Inventory Control, Sales Challans, Payment Tracking, PDF Generation, and Role-Based Authorization.\n\n## Base URL\n`{{baseUrl}}` (Default Production: `https://fundsroom-erp-crm-operations-portal-1.onrender.com`)\n\n## Authentication\nProtected requests require a standard **JWT Bearer Token** in the header:\n`Authorization: Bearer {{token}}`\nExecuting any Login request automatically captures and sets `{{token}}` in your Postman environment.\n\n## System Roles & Permissions\n- **ADMIN**: Access to all endpoints.\n- **SALES**: Manage customers, follow-ups, and sales challans (Draft & Confirm).\n- **WAREHOUSE**: Manage product catalog, S3 image uploads, and Stock IN / Stock OUT movements.\n- **ACCOUNTS**: View orders, verify payments, mark PAID, and export PDF Tax Invoices.\n\n## Automated Environment Variables\n- `{{baseUrl}}`: API Root Base URL\n- `{{token}}`: JWT Token (Auto-populated via Login)\n- `{{customerId}}`: Customer UUID (Auto-populated via Create Customer)\n- `{{productId}}`: Product UUID (Auto-populated via Create Product)\n- `{{challanId}}`: Challan UUID (Auto-populated via Create Draft Challan)",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "01 Authentication",
+			"item": [
+				{
+					"name": "Login - ADMIN Role",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const json = pm.response.json();",
+									"pm.test('Status code is 200', function () {",
+									"    pm.expect(pm.response.code).to.equal(200);",
+									"});",
+									"pm.test('Response is successful', function () {",
+									"    pm.expect(json.success).to.be.true;",
+									"});",
+									"if (json.data && json.data.token) {",
+									"    pm.environment.set('token', json.data.token);",
+									"    pm.test('JWT token auto-saved to environment', function () {",
+									"        pm.expect(pm.environment.get('token')).to.equal(json.data.token);",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"admin@fundsroom.com\",\n    \"password\": \"Admin@123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						},
+						"description": "### Login (ADMIN)\nAuthenticates Admin user credentials and returns user details alongside a JWT token. Automatically saves JWT `token` into environment."
+					},
+					"response": []
+				},
+				{
+					"name": "Login - SALES Role",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const json = pm.response.json();",
+									"pm.test('Status code is 200', function () {",
+									"    pm.expect(pm.response.code).to.equal(200);",
+									"});",
+									"if (json.data && json.data.token) {",
+									"    pm.environment.set('token', json.data.token);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"sales@fundsroom.com\",\n    \"password\": \"Sales@123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						},
+						"description": "### Login (SALES)\nAuthenticates Sales user credentials for customer management and challan processing."
+					},
+					"response": []
+				},
+				{
+					"name": "Login - WAREHOUSE Role",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const json = pm.response.json();",
+									"pm.test('Status code is 200', function () {",
+									"    pm.expect(pm.response.code).to.equal(200);",
+									"});",
+									"if (json.data && json.data.token) {",
+									"    pm.environment.set('token', json.data.token);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"warehouse@fundsroom.com\",\n    \"password\": \"Warehouse@123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						},
+						"description": "### Login (WAREHOUSE)\nAuthenticates Warehouse staff credentials for inventory stock adjustments and image uploads."
+					},
+					"response": []
+				},
+				{
+					"name": "Login - ACCOUNTS Role",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const json = pm.response.json();",
+									"pm.test('Status code is 200', function () {",
+									"    pm.expect(pm.response.code).to.equal(200);",
+									"});",
+									"if (json.data && json.data.token) {",
+									"    pm.environment.set('token', json.data.token);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"accounts@fundsroom.com\",\n    \"password\": \"Accounts@123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						},
+						"description": "### Login (ACCOUNTS)\nAuthenticates Accounts user credentials for payment status updates and invoice downloads."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Current User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const json = pm.response.json();",
+									"pm.test('Status code is 200', function () {",
+									"    pm.expect(pm.response.code).to.equal(200);",
+									"});",
+									"pm.test('Returns authenticated user profile', function () {",
+									"    pm.expect(json.data).to.have.property('email');",
+									"    pm.expect(json.data).to.have.property('role');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/me",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"me"
+							]
+						},
+						"description": "### Get Current User\nReturns the current authenticated user's ID, name, email, and role based on the Bearer JWT token."
+					},
+					"response": []
+				}
+			],
+			"description": "Authentication endpoints for obtaining and verifying JWT access tokens."
+		},
+		{
+			"name": "02 Customers",
+			"item": [
+				{
+					"name": "Get Customers",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const json = pm.response.json();",
+									"pm.test('Status code is 200', function () {",
+									"    pm.expect(pm.response.code).to.equal(200);",
+									"});",
+									"pm.test('Paginated customer array returned', function () {",
+									"    pm.expect(json.data).to.be.an('array');",
+									"    pm.expect(json).to.have.property('total');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/customers?page=1&limit=10&search=&status=&customerType=",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"customers"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								},
+								{
+									"key": "search",
+									"value": ""
+								},
+								{
+									"key": "status",
+									"value": ""
+								},
+								{
+									"key": "customerType",
+									"value": ""
+								}
+							]
+						},
+						"description": "### Get Customers\nRetrieves paginated customer list. Supports query parameters:\n- `page`: Page number (default 1)\n- `limit`: Page size (default 10)\n- `search`: Filter by name, mobile, business, email\n- `status`: LEAD | ACTIVE | INACTIVE\n- `customerType`: RETAIL | WHOLESALE | DISTRIBUTOR\n\nAllowed Roles: ADMIN, SALES, ACCOUNTS"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Customer",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const json = pm.response.json();",
+									"pm.test('Status code is 201 Created', function () {",
+									"    pm.expect(pm.response.code).to.equal(201);",
+									"});",
+									"const createdId = json.data?.id || json.id;",
+									"if (createdId) {",
+									"    pm.environment.set('customerId', createdId);",
+									"    pm.test('Customer ID saved to environment', function () {",
+									"        pm.expect(pm.environment.get('customerId')).to.equal(createdId);",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"customerName\": \"Rajesh Sharma\",\n    \"mobile\": \"9876543299\",\n    \"email\": \"rajesh.sharma@example.com\",\n    \"businessName\": \"Sharma Electricals\",\n    \"gstNumber\": \"27AAPFU0939F1ZV\",\n    \"customerType\": \"WHOLESALE\",\n    \"address\": \"Plot 45, Industrial Estate, Pune\",\n    \"status\": \"ACTIVE\",\n    \"notes\": \"Key wholesale buyer for electrical fittings\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/customers",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"customers"
+							]
+						},
+						"description": "### Create Customer\nCreates a new customer record. Auto-saves created `customerId` into environment.\nRequired fields: `customerName`, `mobile`, `businessName`, `customerType`, `address`.\nAllowed Roles: ADMIN, SALES"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Customer By ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const json = pm.response.json();",
+									"pm.test('Status code is 200', function () {",
+									"    pm.expect(pm.response.code).to.equal(200);",
+									"});",
+									"pm.test('Customer details match environment ID', function () {",
+									"    pm.expect(json.data.id).to.equal(pm.environment.get('customerId'));",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/customers/{{customerId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"customers",
+								"{{customerId}}"
+							]
+						},
+						"description": "### Get Customer By ID\nFetches full customer details including follow-up notes and creator information.\nAllowed Roles: ADMIN, SALES, ACCOUNTS"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Customer",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const json = pm.response.json();",
+									"pm.test('Status code is 200', function () {",
+									"    pm.expect(pm.response.code).to.equal(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"customerName\": \"Rajesh Sharma\",\n    \"mobile\": \"9876543299\",\n    \"email\": \"rajesh.updated@example.com\",\n    \"businessName\": \"Sharma Electricals & Trading\",\n    \"gstNumber\": \"27AAPFU0939F1ZV\",\n    \"customerType\": \"DISTRIBUTOR\",\n    \"address\": \"Plot 45, Phase 2 Industrial Estate, Pune\",\n    \"status\": \"ACTIVE\",\n    \"notes\": \"Upgraded to primary regional distributor\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/customers/{{customerId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"customers",
+								"{{customerId}}"
+							]
+						},
+						"description": "### Update Customer\nUpdates existing customer details by ID.\nAllowed Roles: ADMIN, SALES"
+					},
+					"response": []
+				},
+				{
+					"name": "Add Customer Follow-up",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const json = pm.response.json();",
+									"pm.test('Status code is 201 Created', function () {",
+									"    pm.expect(pm.response.code).to.equal(201);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"note\": \"Discussed Q3 stock requirement for heavy-duty industrial cables.\",\n    \"followUpDate\": \"2026-08-20T10:00:00.000Z\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/customers/{{customerId}}/followups",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"customers",
+								"{{customerId}}",
+								"followups"
+							]
+						},
+						"description": "### Add Customer Follow-up\nLogs a sales follow-up note and schedules the next follow-up date for the customer.\nAllowed Roles: ADMIN, SALES"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Customer Follow-ups",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const json = pm.response.json();",
+									"pm.test('Status code is 200', function () {",
+									"    pm.expect(pm.response.code).to.equal(200);",
+									"});",
+									"pm.test('Follow-up list returned', function () {",
+									"    pm.expect(json.data).to.be.an('array');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/customers/{{customerId}}/followups",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"customers",
+								"{{customerId}}",
+								"followups"
+							]
+						},
+						"description": "### Get Customer Follow-ups\nFetches full historical list of follow-up notes for the specified customer.\nAllowed Roles: ADMIN, SALES, ACCOUNTS"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Customer Challans & Stats",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const json = pm.response.json();",
+									"pm.test('Status code is 200', function () {",
+									"    pm.expect(pm.response.code).to.equal(200);",
+									"});",
+									"pm.test('Contains stats breakdown', function () {",
+									"    pm.expect(json.data.stats).to.have.property('total');",
+									"    pm.expect(json.data.stats).to.have.property('confirmed');",
+									"    pm.expect(json.data.stats).to.have.property('paid');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/customers/{{customerId}}/challans",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"customers",
+								"{{customerId}}",
+								"challans"
+							]
+						},
+						"description": "### Get Customer Challans & Stats\nReturns customer's complete challan history alongside aggregated statistics (total, confirmed, draft, cancelled, paid, unpaid).\nAllowed Roles: ADMIN, SALES, ACCOUNTS"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Customer",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const json = pm.response.json();",
+									"pm.test('Status code is 200', function () {",
+									"    pm.expect(pm.response.code).to.equal(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/customers/{{customerId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"customers",
+								"{{customerId}}"
+							]
+						},
+						"description": "### Delete Customer\nDeletes a customer and cascades deletion of related orders inside a database transaction.\nAllowed Roles: ADMIN, SALES"
+					},
+					"response": []
+				}
+			],
+			"description": "Customer Relationship Management (CRM) endpoints."
+		},
+		{
+			"name": "03 Products",
+			"item": [
+				{
+					"name": "Get Products",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const json = pm.response.json();",
+									"pm.test('Status code is 200', function () {",
+									"    pm.expect(pm.response.code).to.equal(200);",
+									"});",
+									"pm.test('Product array returned', function () {",
+									"    pm.expect(json.data).to.be.an('array');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/products?page=1&limit=10&search=&category=&lowStock=false",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"products"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								},
+								{
+									"key": "search",
+									"value": ""
+								},
+								{
+									"key": "category",
+									"value": ""
+								},
+								{
+									"key": "lowStock",
+									"value": "false"
+								}
+							]
+						},
+						"description": "### Get Products\nRetrieves product catalog. Supports query filters:\n- `page`: Page number\n- `limit`: Page size\n- `search`: Filter by productName or SKU\n- `category`: Filter by category name\n- `lowStock`: Set `true` to filter items where `currentStock <= minimumStock`"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Product",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const json = pm.response.json();",
+									"pm.test('Status code is 201 Created', function () {",
+									"    pm.expect(pm.response.code).to.equal(201);",
+									"});",
+									"const createdId = json.data?.id || json.id;",
+									"if (createdId) {",
+									"    pm.environment.set('productId', createdId);",
+									"    pm.test('Product ID saved to environment', function () {",
+									"        pm.expect(pm.environment.get('productId')).to.equal(createdId);",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"productName\": \"Industrial Hydraulic Hose 10mm\",\n    \"sku\": \"HOSE-HYD-10MM-POSTMAN\",\n    \"category\": \"Pipes & Hoses\",\n    \"unitPrice\": 1250.00,\n    \"currentStock\": 100,\n    \"minimumStock\": 15,\n    \"warehouseLocation\": \"Rack B-04\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/products",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"products"
+							]
+						},
+						"description": "### Create Product\nAdds a new product entry to the catalog. Auto-saves created `productId` into environment.\nRequired fields: `productName`, `sku`, `category`, `unitPrice`, `currentStock`, `minimumStock`.\nAllowed Roles: ADMIN, WAREHOUSE"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Product By ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const json = pm.response.json();",
+									"pm.test('Status code is 200', function () {",
+									"    pm.expect(pm.response.code).to.equal(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/products/{{productId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"products",
+								"{{productId}}"
+							]
+						},
+						"description": "### Get Product By ID\nFetches product details by ID. Replaces AWS S3 object key with presigned view URL automatically if available.\nAllowed Roles: ADMIN, WAREHOUSE, SALES, ACCOUNTS"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Product",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const json = pm.response.json();",
+									"pm.test('Status code is 200', function () {",
+									"    pm.expect(pm.response.code).to.equal(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"productName\": \"Industrial Hydraulic Hose 10mm (Reinforced)\",\n    \"sku\": \"HOSE-HYD-10MM-POSTMAN\",\n    \"category\": \"Pipes & Hoses\",\n    \"unitPrice\": 1350.00,\n    \"currentStock\": 100,\n    \"minimumStock\": 20,\n    \"warehouseLocation\": \"Rack B-05\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/products/{{productId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"products",
+								"{{productId}}"
+							]
+						},
+						"description": "### Update Product\nUpdates product pricing, threshold, title, or location.\nAllowed Roles: ADMIN, WAREHOUSE"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Product",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const json = pm.response.json();",
+									"pm.test('Status code is 200', function () {",
+									"    pm.expect(pm.response.code).to.equal(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/products/{{productId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"products",
+								"{{productId}}"
+							]
+						},
+						"description": "### Delete Product\nDeletes a product entry from the catalog.\nAllowed Roles: ADMIN, WAREHOUSE"
+					},
+					"response": []
+				}
+			],
+			"description": "Product Catalog Management endpoints."
+		},
+		{
+			"name": "04 Product Images & AWS S3",
+			"item": [
+				{
+					"name": "Upload Product Image (AWS S3)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const json = pm.response.json();",
+									"pm.test('Status code is 200', function () {",
+									"    pm.expect(pm.response.code).to.equal(200);",
+									"});",
+									"pm.test('Returns image key / URL', function () {",
+									"    pm.expect(json.data).to.have.property('imageUrl');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "image",
+									"type": "file",
+									"src": []
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/products/{{productId}}/image",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"products",
+								"{{productId}}",
+								"image"
+							]
+						},
+						"description": "### Upload Product Image (AWS S3)\nUploads an image file (`multipart/form-data` with field `image`, max 5MB) to AWS S3. Updates `imageUrl` on the Product record and returns an S3 presigned view URL.\nAllowed Roles: ADMIN, WAREHOUSE"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Presigned Image URL",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const json = pm.response.json();",
+									"pm.test('Status code is 200', function () {",
+									"    pm.expect(pm.response.code).to.equal(200);",
+									"});",
+									"pm.test('Presigned URL string returned', function () {",
+									"    pm.expect(json.data).to.have.property('presignedUrl');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/products/images?filename=products/sample-image.png",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"products",
+								"images"
+							],
+							"query": [
+								{
+									"key": "filename",
+									"value": "products/sample-image.png"
+								}
+							]
+						},
+						"description": "### Get Presigned Image URL\nGenerates a temporary presigned AWS S3 view URL (600s expiration) for an S3 object key.\nAllowed Roles: Authenticated Users"
+					},
+					"response": []
+				}
+			],
+			"description": "AWS S3 file upload and presigned URL retrieval endpoints."
+		},
+		{
+			"name": "05 Stock & Inventory",
+			"item": [
+				{
+					"name": "Stock IN Adjustment",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const json = pm.response.json();",
+									"pm.test('Status code is 201 Created', function () {",
+									"    pm.expect(pm.response.code).to.equal(201);",
+									"});",
+									"pm.test('Stock updated successfully', function () {",
+									"    pm.expect(json.data).to.have.property('currentStock');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"productId\": \"{{productId}}\",\n    \"quantity\": 50,\n    \"reason\": \"Received fresh stock shipment from vendor PO-2026-0811\",\n    \"type\": \"IN\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/stock/in",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"stock",
+								"in"
+							]
+						},
+						"description": "### Stock IN\nPerforms a manual Stock IN operation: increases product `currentStock` and creates a `StockMovement` log of type `IN` inside an atomic transaction.\nAllowed Roles: ADMIN, WAREHOUSE"
+					},
+					"response": []
+				},
+				{
+					"name": "Stock OUT Adjustment",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const json = pm.response.json();",
+									"pm.test('Status code is 201 Created', function () {",
+									"    pm.expect(pm.response.code).to.equal(201);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"productId\": \"{{productId}}\",\n    \"quantity\": 10,\n    \"reason\": \"Manual stock removal due to quality check sample\",\n    \"type\": \"OUT\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/stock/out",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"stock",
+								"out"
+							]
+						},
+						"description": "### Stock OUT\nPerforms a manual Stock OUT operation: validates sufficient inventory, decreases `currentStock`, and logs a `StockMovement` of type `OUT` inside an atomic transaction.\nAllowed Roles: ADMIN, WAREHOUSE"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Stock Movements",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const json = pm.response.json();",
+									"pm.test('Status code is 200', function () {",
+									"    pm.expect(pm.response.code).to.equal(200);",
+									"});",
+									"pm.test('Movements list returned', function () {",
+									"    pm.expect(json.data).to.be.an('array');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/stock/movements?page=1&limit=20&productId=&type=",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"stock",
+								"movements"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "20"
+								},
+								{
+									"key": "productId",
+									"value": ""
+								},
+								{
+									"key": "type",
+									"value": ""
+								}
+							]
+						},
+						"description": "### Get Stock Movements\nRetrieves paginated audit log of all stock movements. Filterable by `productId` and `type` (`IN` | `OUT`).\nAllowed Roles: ADMIN, WAREHOUSE, ACCOUNTS"
+					},
+					"response": []
+				}
+			],
+			"description": "Inventory stock adjustments and movement audit logs."
+		},
+		{
+			"name": "06 Sales Challans",
+			"item": [
+				{
+					"name": "Get Challans",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const json = pm.response.json();",
+									"pm.test('Status code is 200', function () {",
+									"    pm.expect(pm.response.code).to.equal(200);",
+									"});",
+									"pm.test('Challan list returned', function () {",
+									"    pm.expect(json.data).to.be.an('array');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/challans?page=1&limit=10&search=&status=&paymentStatus=&customerId=",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"challans"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								},
+								{
+									"key": "search",
+									"value": ""
+								},
+								{
+									"key": "status",
+									"value": ""
+								},
+								{
+									"key": "paymentStatus",
+									"value": ""
+								},
+								{
+									"key": "customerId",
+									"value": ""
+								}
+							]
+						},
+						"description": "### Get Challans\nRetrieves paginated list of sales challans. Filters:\n- `status`: DRAFT | CONFIRMED | CANCELLED\n- `paymentStatus`: UNPAID | PAID\n- `customerId`: Filter by customer UUID\n\nAllowed Roles: ADMIN, SALES, ACCOUNTS"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Draft Challan",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const json = pm.response.json();",
+									"pm.test('Status code is 201 Created', function () {",
+									"    pm.expect(pm.response.code).to.equal(201);",
+									"});",
+									"const createdId = json.data?.id || json.id;",
+									"if (createdId) {",
+									"    pm.environment.set('challanId', createdId);",
+									"    pm.test('Challan ID saved to environment', function () {",
+									"        pm.expect(pm.environment.get('challanId')).to.equal(createdId);",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"items\": [\n        {\n            \"productId\": \"{{productId}}\",\n            \"quantity\": 5\n        }\n    ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/challans",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"challans"
+							]
+						},
+						"description": "### Create Draft Challan\nGenerates a new Sales Challan in `DRAFT` state with auto-generated number `CHL-YYYYMMDD-XXXX`. Snapshots item prices into `ChallanItem` rows. Does NOT deduct stock in draft status. Auto-saves `challanId` into environment.\nAllowed Roles: ADMIN, SALES"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Challan By ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const json = pm.response.json();",
+									"pm.test('Status code is 200', function () {",
+									"    pm.expect(pm.response.code).to.equal(200);",
+									"});",
+									"pm.test('Challan includes items and customer', function () {",
+									"    pm.expect(json.data).to.have.property('items');",
+									"    pm.expect(json.data).to.have.property('customer');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/challans/{{challanId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"challans",
+								"{{challanId}}"
+							]
+						},
+						"description": "### Get Challan By ID\nFetches full challan details including line items, product snapshots, customer info, and creator details.\nAllowed Roles: ADMIN, SALES, ACCOUNTS"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Draft Challan",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const json = pm.response.json();",
+									"pm.test('Status code is 200', function () {",
+									"    pm.expect(pm.response.code).to.equal(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"items\": [\n        {\n            \"productId\": \"{{productId}}\",\n            \"quantity\": 8\n        }\n    ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/challans/{{challanId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"challans",
+								"{{challanId}}"
+							]
+						},
+						"description": "### Update Draft Challan\nUpdates customer or line items for a challan in `DRAFT` state.\nAllowed Roles: ADMIN, SALES"
+					},
+					"response": []
+				},
+				{
+					"name": "Confirm Challan (Atomic Stock Deduction)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const json = pm.response.json();",
+									"pm.test('Status code is 200', function () {",
+									"    pm.expect(pm.response.code).to.equal(200);",
+									"});",
+									"pm.test('Challan status updated to CONFIRMED', function () {",
+									"    pm.expect(json.data.status).to.equal('CONFIRMED');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/challans/{{challanId}}/confirm",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"challans",
+								"{{challanId}}",
+								"confirm"
+							]
+						},
+						"description": "### Confirm Challan\n**Primary Business Operation**: Confirms a draft challan. Executed inside an atomic database transaction (`prisma.$transaction`):\n1. Verifies challan status is `DRAFT`.\n2. Validates inventory levels for all items.\n3. Prevents stock from becoming negative.\n4. Deducts quantity from `currentStock` of each product.\n5. Creates `OUT` stock movement audit logs.\n6. Updates challan status to `CONFIRMED`.\n7. Commits transaction atomically.\n\nAllowed Roles: ADMIN, SALES"
+					},
+					"response": []
+				},
+				{
+					"name": "Mark Challan Payment as PAID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const json = pm.response.json();",
+									"pm.test('Status code is 200', function () {",
+									"    pm.expect(pm.response.code).to.equal(200);",
+									"});",
+									"pm.test('Payment status updated to PAID', function () {",
+									"    pm.expect(json.data.paymentStatus).to.equal('PAID');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/challans/{{challanId}}/paid",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"challans",
+								"{{challanId}}",
+								"paid"
+							]
+						},
+						"description": "### Mark Challan Payment as PAID\nUpdates `paymentStatus` to `PAID` and logs `paidAt` timestamp for a confirmed challan.\nAllowed Roles: ADMIN, SALES, ACCOUNTS"
+					},
+					"response": []
+				},
+				{
+					"name": "Cancel Challan",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const json = pm.response.json();",
+									"pm.test('Status code is 200', function () {",
+									"    pm.expect(pm.response.code).to.equal(200);",
+									"});",
+									"pm.test('Status updated to CANCELLED', function () {",
+									"    pm.expect(json.data.status).to.equal('CANCELLED');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/challans/{{challanId}}/cancel",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"challans",
+								"{{challanId}}",
+								"cancel"
+							]
+						},
+						"description": "### Cancel Challan\nCancels a draft challan and updates status to `CANCELLED`.\nAllowed Roles: ADMIN, SALES"
+					},
+					"response": []
+				}
+			],
+			"description": "Sales order processing and challan lifecycle operations."
+		},
+		{
+			"name": "07 Documents & PDF",
+			"item": [
+				{
+					"name": "Generate Sales Challan PDF",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200', function () {",
+									"    pm.expect(pm.response.code).to.equal(200);",
+									"});",
+									"pm.test('Content-Type is application/pdf', function () {",
+									"    pm.expect(pm.response.headers.get('Content-Type')).to.include('application/pdf');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/challans/{{challanId}}/pdf",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"challans",
+								"{{challanId}}",
+								"pdf"
+							]
+						},
+						"description": "### Generate Sales Challan PDF\nGenerates and streams a PDF Sales Challan document using PDFKit. Returns binary `application/pdf` stream.\nAllowed Roles: ADMIN, SALES, ACCOUNTS"
+					},
+					"response": []
+				},
+				{
+					"name": "Generate Tax Invoice PDF (GST 18%)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200', function () {",
+									"    pm.expect(pm.response.code).to.equal(200);",
+									"});",
+									"pm.test('Content-Type is application/pdf', function () {",
+									"    pm.expect(pm.response.headers.get('Content-Type')).to.include('application/pdf');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/invoices/{{challanId}}/pdf",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"invoices",
+								"{{challanId}}",
+								"pdf"
+							]
+						},
+						"description": "### Generate Tax Invoice PDF\nGenerates an official Tax Invoice for `CONFIRMED` orders including company GSTIN (`27AABCU9603R1ZM`), customer details, itemized totals, CGST (9%) + SGST (9%), and terms. Returns binary `application/pdf` stream.\nAllowed Roles: ADMIN, SALES, ACCOUNTS"
+					},
+					"response": []
+				}
+			],
+			"description": "PDF document generation endpoints."
+		},
+		{
+			"name": "08 Authorization Tests (Role Limits)",
+			"item": [
+				{
+					"name": "WAREHOUSE Role - Attempt Create Customer (403 Forbidden)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const json = pm.response.json();",
+									"pm.test('Status code is 403 Forbidden', function () {",
+									"    pm.expect(pm.response.code).to.equal(403);",
+									"});",
+									"pm.test('Returns forbidden message', function () {",
+									"    pm.expect(json.success).to.be.false;",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"customerName\": \"Unauthorized Attempt\",\n    \"mobile\": \"9999999999\",\n    \"businessName\": \"Test Corp\",\n    \"customerType\": \"RETAIL\",\n    \"address\": \"Test Address\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/customers",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"customers"
+							]
+						},
+						"description": "### Negative Test: Warehouse Create Customer\nTests role authorization middleware: `WAREHOUSE` users are barred from creating customers. Expected Result: HTTP 403 Forbidden."
+					},
+					"response": []
+				},
+				{
+					"name": "SALES Role - Attempt Stock Adjustment (403 Forbidden)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const json = pm.response.json();",
+									"pm.test('Status code is 403 Forbidden', function () {",
+									"    pm.expect(pm.response.code).to.equal(403);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"productId\": \"{{productId}}\",\n    \"quantity\": 10,\n    \"reason\": \"Sales attempting stock adjustment\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/stock/in",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"stock",
+								"in"
+							]
+						},
+						"description": "### Negative Test: Sales Stock IN\nTests role authorization middleware: `SALES` users cannot adjust stock levels. Expected Result: HTTP 403 Forbidden."
+					},
+					"response": []
+				},
+				{
+					"name": "Unauthenticated Request - Get Customers (401 Unauthorized)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const json = pm.response.json();",
+									"pm.test('Status code is 401 Unauthorized', function () {",
+									"    pm.expect(pm.response.code).to.equal(401);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/customers",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"customers"
+							]
+						},
+						"description": "### Negative Test: Missing JWT\nTests auth middleware: Requests lacking `Authorization: Bearer <token>` header are rejected. Expected Result: HTTP 401 Unauthorized."
+					},
+					"response": []
+				}
+			],
+			"description": "Role authorization boundary tests."
+		},
+		{
+			"name": "09 Error & Negative Tests",
+			"item": [
+				{
+					"name": "Invalid Login Credentials (401 Unauthorized)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const json = pm.response.json();",
+									"pm.test('Status code is 401 Unauthorized', function () {",
+									"    pm.expect(pm.response.code).to.equal(401);",
+									"});",
+									"pm.test('Returns invalid email or password message', function () {",
+									"    pm.expect(json.message).to.include('Invalid');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"admin@fundsroom.com\",\n    \"password\": \"WrongPassword123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						},
+						"description": "### Negative Test: Invalid Credentials\nTests authentication failure when an incorrect password is provided. Expected Result: HTTP 401 Unauthorized."
+					},
+					"response": []
+				},
+				{
+					"name": "Insufficient Stock - Negative Test (400 Bad Request)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const json = pm.response.json();",
+									"pm.test('Status code is 400 Bad Request', function () {",
+									"    pm.expect(pm.response.code).to.equal(400);",
+									"});",
+									"pm.test('Returns insufficient stock error message', function () {",
+									"    pm.expect(json.message).to.include('Insufficient stock');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/challans/{{challanId}}/confirm",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"challans",
+								"{{challanId}}",
+								"confirm"
+							]
+						},
+						"description": "### Negative Test: Insufficient Inventory\nTests the business rule `availableStock < requestedQuantity` upon challan confirmation. Verifies transaction rollback and error message return. Expected Result: HTTP 400 Bad Request."
+					},
+					"response": []
+				},
+				{
+					"name": "Duplicate SKU Creation (409 Conflict)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const json = pm.response.json();",
+									"pm.test('Status code is 409 Conflict', function () {",
+									"    pm.expect(pm.response.code).to.equal(409);",
+									"});",
+									"pm.test('Returns SKU already exists message', function () {",
+									"    pm.expect(json.message).to.include('SKU already exists');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"productName\": \"Duplicate Product Test\",\n    \"sku\": \"HOSE-HYD-10MM-POSTMAN\",\n    \"category\": \"Pipes\",\n    \"unitPrice\": 500,\n    \"currentStock\": 10,\n    \"minimumStock\": 2\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/products",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"products"
+							]
+						},
+						"description": "### Negative Test: Duplicate SKU\nTests product SKU uniqueness constraint in database. Expected Result: HTTP 409 Conflict."
+					},
+					"response": []
+				},
+				{
+					"name": "Confirm Non-Draft Challan (400 Bad Request)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const json = pm.response.json();",
+									"pm.test('Status code is 400 Bad Request', function () {",
+									"    pm.expect(pm.response.code).to.equal(400);",
+									"});",
+									"pm.test('Returns draft confirmation error message', function () {",
+									"    pm.expect(json.message).to.include('Only draft challans can be confirmed');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/challans/{{challanId}}/confirm",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"challans",
+								"{{challanId}}",
+								"confirm"
+							]
+						},
+						"description": "### Negative Test: Confirm Non-Draft Order\nVerifies that attempting to confirm an order that is already `CONFIRMED` or `CANCELLED` is rejected. Expected Result: HTTP 400 Bad Request."
+					},
+					"response": []
+				},
+				{
+					"name": "Generate Invoice for Unconfirmed Order (400 Bad Request)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const json = pm.response.json();",
+									"pm.test('Status code is 400 Bad Request', function () {",
+									"    pm.expect(pm.response.code).to.equal(400);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/invoices/invalid-unconfirmed-id/pdf",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"invoices",
+								"invalid-unconfirmed-id",
+								"pdf"
+							]
+						},
+						"description": "### Negative Test: Invoice for Unconfirmed Order\nVerifies that Tax Invoices can only be generated for orders in `CONFIRMED` state. Expected Result: HTTP 400 or 404."
+					},
+					"response": []
+				}
+			],
+			"description": "Validation, duplicate key, and state lifecycle negative test cases."
+		}
+	]
+}
