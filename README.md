@@ -851,10 +851,10 @@ The application features a centralized Express error middleware (`error.middlewa
 
 ```ini
 # PostgreSQL Connection URL
-DATABASE_URL="postgresql://neondb_owner:npg_2lsuMcP9ydiw@ep-withered-queen-ai14u3wy-pooler.c-4.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
+DATABASE_URL="your neon url"
 
 # JWT Secret Token Key
-JWT_SECRET="skdhfkhffshfsjhfj"
+JWT_SECRET="your secret "
 
 # Server Port
 PORT=5000
@@ -866,7 +866,7 @@ NODE_ENV="development"
 FRONTEND_URL="http://localhost:5173"
 
 # AWS S3 Credentials
-AWS_ACCESS_KEY_ID="AKIAYOURAWSKEYID12345"
+AWS_ACCESS_KEY_ID="your key id"
 AWS_SECRET_ACCESS_KEY="YOUR_AWS_SECRET_ACCESS_KEY_HERE"
 AWS_BUCKET_NAME="your-s3-bucket-name"
 ```
