@@ -1,4 +1,4 @@
-import { Bell, Menu, Calendar, Sparkles } from 'lucide-react';
+import { Menu, Calendar, Sparkles } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 
 interface NavbarProps {
@@ -57,10 +57,7 @@ export function Navbar({ onMenuClick }: NavbarProps) {
         </div>
 
         <div className="flex items-center gap-3 md:gap-4">
-          <button className="p-2 rounded-xl text-slate-400 hover:text-slate-900 hover:bg-slate-100 transition-all relative">
-            <Bell className="h-5 w-5" />
-            <span className="absolute top-1.5 right-1.5 h-2 w-2 bg-orange-500 rounded-full ring-2 ring-white" />
-          </button>
+         
           
           <div className="h-8 w-px bg-slate-200 hidden sm:block" />
 
