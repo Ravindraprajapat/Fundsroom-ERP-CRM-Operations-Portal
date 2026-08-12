@@ -125,7 +125,16 @@ export async function remove(req: Request, res: Response, next: NextFunction): P
     const id = req.params["id"] as string;
     const product = await prisma.product.findUnique({ where: { id } });
     if (!product) throw createError('Product not found', 404);
-    await prisma.product.delete({ where: { id } });
+
+    await prisma.$transaction(async (tx: any) => {
+      // 1. Clean up associated stock movements
+      await tx.stockMovement.deleteMany({ where: { productId: id } });
+      // 2. Clean up associated challan items
+      await tx.challanItem.deleteMany({ where: { productId: id } });
+      // 3. Delete the product
+      await tx.product.delete({ where: { id } });
+    });
+
     sendSuccess(res, { message: 'Product deleted successfully' });
   } catch (err) { next(err); }
 }
